@@ -1,4 +1,4 @@
-#Getting start with SNS
+# Getting start with SNS
 ## Preface
 > This topic describes how to create a SNS topic, subscribe an exist SNS topic, publish messages by the AWS SDK(also Spring Cloud Messaging easy to use).We make a simple demo to make publishing message to SQS/Http work.
 
