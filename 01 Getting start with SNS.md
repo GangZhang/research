@@ -223,4 +223,4 @@ DEMO [Here](https://github.com/GangZhang/research/tree/master/01%20SNS)
 ## References
 [1] [http://cloud.spring.io/spring-cloud-aws/spring-cloud-aws.html](http://cloud.spring.io/spring-cloud-aws/spring-cloud-aws.html#_receiving_a_message)
 
-[2] [Credentials set in AwsCredentials.properties file] (https://www.ibm.com/support/knowledgecenter/STXNRM_3.11.1/coss.doc/aws_java_c_cred_file.html)
+[2] [Credentials set in AwsCredentials.properties file](https://www.ibm.com/support/knowledgecenter/STXNRM_3.11.1/coss.doc/aws_java_c_cred_file.html)
