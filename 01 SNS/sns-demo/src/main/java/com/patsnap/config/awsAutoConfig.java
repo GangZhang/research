@@ -8,6 +8,7 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
+import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import org.springframework.cloud.aws.messaging.config.QueueMessageHandlerFactory;
 import org.springframework.cloud.aws.messaging.config.SimpleMessageListenerContainerFactory;
 import org.springframework.cloud.aws.messaging.config.annotation.EnableSqs;
@@ -35,16 +36,16 @@ public class awsAutoConfig {
     @Bean
     public AmazonSNS amazonSNSClient() {
         AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withCredentials(new
-                ClasspathPropertiesFileCredentialsProvider()).withRegion(Regions.US_EAST_1).build();
+                ClasspathPropertiesFileCredentialsProvider()).withRegion(Regions.CN_NORTH_1).build();
         return snsClient;
     }
 
     @Lazy
     @Bean(name = "amazonSQS", destroyMethod = "shutdown")
     public AmazonSQSAsync amazonSQSClient() {
-        AmazonSQSAsync  awsSQSAsyncClient = new AmazonSQSAsyncClient(new DefaultAWSCredentialsProviderChain());
+        AmazonSQSAsync  awsSQSAsyncClient = AmazonSQSAsyncClientBuilder.standard().withCredentials(new
+                ClasspathPropertiesFileCredentialsProvider()).withRegion(Regions.CN_NORTH_1).build();
 
-        awsSQSAsyncClient.setRegion(Region.getRegion(Regions.fromName("us-east-1")));
         return awsSQSAsyncClient;
     }
 
