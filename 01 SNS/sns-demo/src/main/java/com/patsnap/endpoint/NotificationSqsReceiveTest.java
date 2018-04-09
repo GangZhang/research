@@ -28,7 +28,7 @@ public class NotificationSqsReceiveTest {
     private String subscriber;
 
 
-    @SqsListener(value = "bo-test-sns-queue", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    @SqsListener(value = "http://localhost:4568/course-sso-logout-queue-local", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
     public void sns2SqsListener(@Headers Map<String, String> headers, @NotificationMessage String rawJsonMessage)
             throws Exception {
         LOGGER.info("[SNS sqs-receiver] Subscribe logout msg in sqs: '{}'", rawJsonMessage);

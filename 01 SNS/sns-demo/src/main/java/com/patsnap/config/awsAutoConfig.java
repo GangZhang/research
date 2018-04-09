@@ -1,13 +1,10 @@
 package com.patsnap.config;
 
-import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Region;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import org.springframework.cloud.aws.messaging.config.QueueMessageHandlerFactory;
 import org.springframework.cloud.aws.messaging.config.SimpleMessageListenerContainerFactory;
@@ -35,23 +32,26 @@ import java.util.Collections;
 public class awsAutoConfig {
     @Bean
     public AmazonSNS amazonSNSClient() {
-        AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withCredentials(new
-                ClasspathPropertiesFileCredentialsProvider()).withRegion(Regions.CN_NORTH_1).build();
+//        AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withCredentials(new
+//                ClasspathPropertiesFileCredentialsProvider()).withRegion(Regions.CN_NORTH_1).build();
+        AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withEndpointConfiguration(new AwsClientBuilder
+                .EndpointConfiguration("http://localhost:9911", Regions.US_EAST_1.getName())).build();
         return snsClient;
     }
 
     @Lazy
     @Bean(name = "amazonSQS", destroyMethod = "shutdown")
     public AmazonSQSAsync amazonSQSClient() {
-        AmazonSQSAsync  awsSQSAsyncClient = AmazonSQSAsyncClientBuilder.standard().withCredentials(new
-                ClasspathPropertiesFileCredentialsProvider()).withRegion(Regions.CN_NORTH_1).build();
-
+//        AmazonSQSAsync  awsSQSAsyncClient = AmazonSQSAsyncClientBuilder.standard().withCredentials(new
+//                ClasspathPropertiesFileCredentialsProvider()).withRegion(Regions.CN_NORTH_1).build();
+        AmazonSQSAsync awsSQSAsyncClient = AmazonSQSAsyncClientBuilder.standard().withEndpointConfiguration(new
+                AwsClientBuilder.EndpointConfiguration("http://localhost:4568", Regions.US_EAST_1.getName())).build();
         return awsSQSAsyncClient;
     }
 
     @Bean
     public HandlerMethodArgumentResolverComposite snsMethodArgumentResolver() throws Exception {
-        return  (HandlerMethodArgumentResolverComposite) NotificationHandlerMethodArgumentResolverConfigurationUtils
+        return (HandlerMethodArgumentResolverComposite) NotificationHandlerMethodArgumentResolverConfigurationUtils
                 .getNotificationHandlerMethodArgumentResolver(amazonSNSClient());
     }
 
@@ -75,7 +75,7 @@ public class awsAutoConfig {
     }
 
     @Bean
-    public QueueMessageHandler queueMessageHandler(AmazonSQSAsync amazonSQSAsync,QueueMessageHandlerFactory factory) {
+    public QueueMessageHandler queueMessageHandler(AmazonSQSAsync amazonSQSAsync, QueueMessageHandlerFactory factory) {
 //        QueueMessageHandlerFactory factory = new QueueMessageHandlerFactory();
         factory.setAmazonSqs(amazonSQSAsync);
         return factory.createQueueMessageHandler();
