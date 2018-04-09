@@ -29,7 +29,7 @@ import java.util.Collections;
  */
 @Configuration
 @EnableSqs
-public class awsAutoConfig {
+public class AwsAutoConfig {
     @Bean
     public AmazonSNS amazonSNSClient() {
 //        AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withCredentials(new

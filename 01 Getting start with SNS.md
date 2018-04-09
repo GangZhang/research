@@ -55,6 +55,7 @@ Step 4: Set the delivery retry policy for the subscription (optional)
 Step 5: Give users permissions to publish to the topic (optional)
 
 Step 6: Send messages to the HTTP/HTTPS endpoint
+
 SNS sends three type of requests to an HTTP topic listener endpoint, for each of them annotations are provided:
 
 * Subscription request → `@NotificationSubscriptionMapping`
@@ -131,7 +132,7 @@ snsClient.subscribe(subscribeRequest);
 LOGGER.info("SubscribeRequest - " + snsClient.getCachedResponseMetadata(subscribeRequest));
 ```
 
-### Publish message
+### Publish Message
 Publish message using AWS SDK, should use Spring Cloud messaging `NotificationMessagingTemplate` instead.
 
 ```java
@@ -203,10 +204,6 @@ In this example a queue listener container is started that polls the SQS queueNa
 public class NotificationSqsReceiveTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationSqsReceiveTest.class);
 
-    @Value("${com.patsnap.sns.logout.subscriber.sqs}")
-    private String subscriber;
-
-
     @SqsListener(value = "bo-test-sns-queue", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
     public void sns2SqsListener(@Headers Map<String, String> headers, @NotificationMessage String rawJsonMessage)
             throws Exception {
@@ -217,9 +214,109 @@ public class NotificationSqsReceiveTest {
 }
 ```
 
+## Support With Fake-sqs And Fake-sns
+### Deploy Fake Services
+We use [s12v/sns](https://github.com/s12v/sns) to deploy local fake sns service , and use [iain/fake_sqs](https://github.com/iain/fake_sqs) to deploy local fake sqs service, and test simple function like: `create-topic`,`create-queue`,`subscribe`, then intergrate with Java sdk to `publish` event and `receive` event.
+
+* Fake SQS
+
+	**Installation**
+	>gem install fake_sqs
+	
+	**Running**
+	> fake_sqs --database /path/to/database.yml
+	
+
+* Fake SNS
+	
+	**[Docker](https://github.com/s12v/sns#docker)**
+	
+	**Jar**
+	
+	Download the latest release from https://github.com/s12v/sns/releases and run:
+	>DB_PATH=/tmp/db.json java -jar sns-0.3.7.jar
+	
+	Requires Java8.
+
+
+
+### Create Topic
+Create topic:
+>aws sns --endpoint-url http://localhost:9911  create-topic --name bo-sso-logout-local>>"TopicArn": "arn:aws:sns:us-east-1:123456789012:bo-sso-logout-local"
+
+
+### Create Queue
+Create queue:
+>aws sqs --endpoint-url http://localhost:4568 create-queue --queue-name course-sso-logout-queue-local```json"QueueUrls": [        "http://localhost:4568/course-sso-logout-queue-local"    ]
+```
+
+Get queue arn:
+>aws sqs --endpoint-url http://localhost:4568 get-queue-attributes --queue-url http://localhost:4568/course-sso-logout-queue-local --attribute-names All```json	
+	{    "Attributes": {        "ApproximateNumberOfMessagesNotVisible": "0",        "ApproximateNumberOfMessages": "0",        "QueueArn": "arn:aws:sqs:us-east-1:06e16ad806a494e8a5841c522a804365:course-sso-logout-queue-local"    	}	}
+```
+
+
+### Subscribe Sqs
+Subscribe sns with sqs
+>aws sns --endpoint-url http://localhost:9911 subscribe --topic-arn arn:aws:sns:us-east-1:123456789012:bo-sso-logout-local --protocol sqs --notification-endpoint *"aws-sqs://course-sso-logout-queue-local?amazonSQSEndpoint=http://localhost:4568&accessKey=&secretKey="*```json{    "SubscriptionArn": "arn:aws:sns:us-east-1:123456789012:bo-sso-logout-local:83bf13d8-e7c5-4435-9730-b90e4791b4e0"}
+```
+#### Attention
+* Aws cli subscribe `--notification-endpoint`  should use [Camel Uri](https://github.com/s12v/sns), refer to [Supported integrations](https://github.com/s12v/sns#supported-integrations).
+
+### Local Service Config
+#### AwsAutoConfig 
+
+Use EndpointConfiguration to config aws client:
+
+Local fake sns endpoint :`http://localhost:9911`
+
+Local fake sqs endpoint :`http://localhost:4568`
+
+```java
+@Configuration
+@EnableSqs
+public class AwsAutoConfig {
+    @Bean
+    public AmazonSNS amazonSNSClient() {
+        AmazonSNS snsClient = AmazonSNSClientBuilder.standard().withEndpointConfiguration(new AwsClientBuilder
+                .EndpointConfiguration("http://localhost:9911", Regions.US_EAST_1.getName())).build();
+        return snsClient;
+    }
+
+    @Lazy
+    @Bean(name = "amazonSQS", destroyMethod = "shutdown")
+    public AmazonSQSAsync amazonSQSClient() {
+        AmazonSQSAsync awsSQSAsyncClient = AmazonSQSAsyncClientBuilder.standard().withEndpointConfiguration(new
+                AwsClientBuilder.EndpointConfiguration("http://localhost:4568", Regions.US_EAST_1.getName())).build();
+        return awsSQSAsyncClient;
+    }
+    ...
+ }
+```
+
+#### Sqs listener
+
+The SQS queueName(`bo-test-sns-queue`) should change to local queueUrl(`http://localhost:4568/course-sso-logout-queue-local`). 
+
+```java
+    @SqsListener(value = "http://localhost:4568/course-sso-logout-queue-local", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    public void sns2SqsListener(@Headers Map<String, String> headers, @NotificationMessage String rawJsonMessage)
+            throws Exception {
+        LOGGER.info("[SNS sqs-receiver] Subscribe logout msg in sqs: '{}'", rawJsonMessage);
+    }
+```
+
+#### Attention
+* Get Error as follow , but do not affect the subscribe/publish :https://github.com/iain/fake_sqs/issues/40
+
+
+
 ## GitHub
 
-DEMO [Here](https://github.com/GangZhang/research/tree/master/01%20SNS)
+Get SNS DEMO on GitHub [Here&hearts;](https://github.com/GangZhang/research/tree/master/01%20SNS)
+
+Support with fake-sns & fake-sqs DEMO [Here&spades;](https://github.com/GangZhang/research/tree/Develop-fake-sns-sqs/01%20SNS)
+
 ## References
 [1] [http://cloud.spring.io/spring-cloud-aws/spring-cloud-aws.html](http://cloud.spring.io/spring-cloud-aws/spring-cloud-aws.html#_receiving_a_message)
 
