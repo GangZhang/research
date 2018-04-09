@@ -321,3 +321,11 @@ Support with fake-sns & fake-sqs DEMO [Here&spades;](https://github.com/GangZhan
 [1] [http://cloud.spring.io/spring-cloud-aws/spring-cloud-aws.html](http://cloud.spring.io/spring-cloud-aws/spring-cloud-aws.html#_receiving_a_message)
 
 [2] [Credentials set in AwsCredentials.properties file](https://www.ibm.com/support/knowledgecenter/STXNRM_3.11.1/coss.doc/aws_java_c_cred_file.html)
+
+[3] [Amazon Simple Queue Service API Reference](https://docs.aws.amazon.com/cli/latest/reference/sqs/index.html#cli-aws-sqs)
+
+[4] [Amazon Simple Notification Service API Reference](https://docs.aws.amazon.com/cli/latest/reference/sns/index.html#cli-aws-sns)
+
+[5] [Fake sns](https://github.com/s12v/sns)
+
+[6] [Fake sqs](https://github.com/iain/fake_sqs)
