@@ -307,8 +307,8 @@ The SQS queueName(`bo-test-sns-queue`) should change to local queueUrl(`http://l
 ```
 
 #### Attention
-* Get Error as follow , but do not affect the subscribe/publish :https://github.com/iain/fake_sqs/issues/40
-
+* Get Error as follow , but do not affect the subscribe/publish :
+![](https://github.com/GangZhang/research/blob/Develop-fake-sns-sqs/01%20SNS/images/Sqs%20error.png?raw=true)This is an known issue about fake sqs , can be saw [here](https://github.com/iain/fake_sqs/issues/40).
 
 
 ## GitHub
